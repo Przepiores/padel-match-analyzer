@@ -4,9 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Status
 
-No code yet. `PLAN.md` (in Polish) holds the agreed design and milestones M0–M7. Build to it, and update it when a decision changes. The project owner writes in Polish. Code identifiers are in English; user-facing docs are in Polish.
+M0 (skeleton, `padel info`) is done. `PLAN.md` (in Polish) holds the agreed design and milestones M0–M7. Build to it, and update it when a decision changes. The project owner writes in Polish. Code identifiers are in English; user-facing text (CLI output, docs) is in Polish.
 
-Planned tooling is `uv`, `pytest` and `ruff`. Replace this line with the real build, lint and test commands once M0 lands.
+## Commands
+
+```
+uv sync                              # install deps into .venv
+uv run padel info <video>            # run the CLI
+uv run pytest                        # all tests
+uv run pytest tests/test_video.py::test_info_command   # single test
+uv run ruff check . && uv run ruff format --check .    # lint + format check
+```
+
+Tests build tiny synthetic videos with `cv2.VideoWriter` in `tmp_path`; never commit real match footage. Heavy deps (ultralytics, torch) are added only in the milestone that needs them.
 
 ## What this is
 

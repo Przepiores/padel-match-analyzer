@@ -46,6 +46,13 @@ Obecnie kamera stoi gdzieś między „za kortem nisko” a „za kortem wysoko�
 
 Po M1 porównamy obecne nagrania z nagraniem testowym wg tych zaleceń.
 
+**Wnioski z pierwszego zrzutu (kamera nisko za szybą, szeroki kąt):**
+
+- Bliskie narożniki kortu są poza kadrem, a bliska połowa zajmuje większość obrazu. Kalibracja nie może więc wymagać 4 narożników (zob. etap 1).
+- Na górze kadru widać smugi i refleksy na szybie. Trzeba przetrzeć szybę albo postawić kamerę nad nią, bo takie plamy łatwo pomylić z piłką.
+- Daleka para graczy jest mała (około 60–80 px wysokości). Tym bardziej warto podnieść kamerę i cofnąć kadr tak, żeby objął bliską linię końcową.
+- Zrzut pochodzi z ekranu telefonu (czarne pasy po bokach). Do analizy potrzebny jest oryginalny plik wideo, nie nagranie ekranu.
+
 ## Architektura
 
 Analiza przebiega etapami. Każdy etap zapisuje wynik do katalogu wyjściowego. Przy ponownym uruchomieniu gotowe etapy są pomijane: detekcja (najwolniejsza część) liczy się raz, a heurystyki uderzeń i punktów można stroić w sekundach.
@@ -65,7 +72,7 @@ mecz.mp4
 ### 1. Kalibracja kortu
 
 - Kort padla ma 10 × 20 m, siatka jest w połowie, a linie serwisowe leżą 6,95 m od siatki.
-- Na pierwszej klatce klikasz 4 narożniki podłogi kortu (opcjonalnie też przecięcia linii serwisowych dla większej dokładności). Z tego liczona jest homografia (`cv2.findHomography`), czyli przeliczenie punktu na obrazie na metry na korcie.
+- Na pierwszej klatce klikasz **dowolne widoczne punkty charakterystyczne** podłogi kortu i dla każdego wybierasz, czym jest: narożnik, podstawa słupka siatki, przecięcie linii serwisowej z linią środkową lub boczną. Potrzeba co najmniej 4 punktów, z których żadne 3 nie leżą na jednej prostej (np. 2 dalekie narożniki + 2 podstawy słupków). Bliskie narożniki często są poza kadrem, więc nie mogą być wymagane. Z tego liczona jest homografia (`cv2.findHomography`), czyli przeliczenie punktu na obrazie na metry na korcie.
 - **Ograniczenie:** homografia działa tylko dla punktów na podłodze, czyli stóp graczy i miejsc odbicia piłki. Nie działa dla piłki w locie, bo nie znamy jej wysokości.
 - Weryfikacja: linie modelu kortu są rysowane na obrazie i od razu widać, czy się pokrywają.
 - Kalibrację można użyć ponownie dla kolejnych nagrań, jeśli kamera się nie ruszyła.
@@ -220,7 +227,7 @@ Cele są wstępne i skorygujemy je po pierwszych pomiarach.
 
 | # | Zakres | Gotowe, gdy |
 |---|---|---|
-| M0 | Szkielet: `pyproject`, ruff, pytest, CLI, `padel info` | `padel info` wypisuje fps i rozdzielczość Twojego pliku |
+| M0 ✅ | Szkielet: `pyproject`, ruff, pytest, CLI, `padel info` | `padel info` wypisuje fps i rozdzielczość Twojego pliku |
 | M1 | Kalibracja kortu i homografia | Linie kortu z modelu pokrywają się z obrazem |
 | M2 | Gracze: detekcja, tracking, filtr kortu, ręczne ID, odzyskiwanie ID | Wideo z ramkami i imionami bez zamiany tożsamości na 10-minutowym fragmencie |
 | M3 | Piłka: punkt odniesienia → narzędzie do oznaczania → własny model → trajektoria | Recall piłki ≥ 85% na zestawie ewaluacyjnym |
