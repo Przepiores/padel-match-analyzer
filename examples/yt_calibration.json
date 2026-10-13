@@ -1,0 +1,10 @@
+{
+  "note": "Punkty kortu dla data/yt_clip.mp4 (640x360), odczytane z klatki 104 s.",
+  "points": [
+    {"name": "T linii serwisowej (bliska)", "image": [316, 343], "court": [5.0, 3.05]},
+    {"name": "słupek siatki lewy (podłoga)", "image": [92, 222], "court": [0.0, 10.0]},
+    {"name": "słupek siatki prawy (podłoga)", "image": [540, 222], "court": [10.0, 10.0]},
+    {"name": "daleki narożnik lewy", "image": [196, 183], "court": [0.0, 20.0]},
+    {"name": "daleki narożnik prawy", "image": [441, 183], "court": [10.0, 20.0]}
+  ]
+}

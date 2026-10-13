@@ -223,11 +223,59 @@ Bez pomiaru nie wiadomo, czy zmiana coś poprawia. Dlatego z jednego Twojego nag
 
 Cele są wstępne i skorygujemy je po pierwszych pomiarach.
 
+## Prototyp `padel demo`: wnioski
+
+Przed budową właściwych etapów sprawdziliśmy całe podejście na fragmencie 2 minut z YouTube (640×360, 30 fps, kamera nisko za kortem, bliska linia końcowa poza kadrem). To jest gorsza jakość niż docelowa (1080p, 60 fps).
+
+**Co zadziałało w śledzeniu piłki:**
+
+- Porównanie klatki t z t−3 i t+3, a nie z sąsiednimi klatkami. Piłka lecąca w stronę kamery przesuwa się o 1–2 px na klatkę, więc różnica sąsiednich klatek jej nie widzi.
+- Tło liczone jako mediana z okna ±1 s. Usuwa migotanie kompresji na teksturze ścian.
+- Dwa poziomy koloru:
+  - „pewny”: nasycona żółć piłki (odcień 28–40, nasycenie 160+),
+  - „słaby”: blada piłka na beżowej ścianie, jaśniejsza od tła.
+- Tracklet złożony tylko ze słabych punktów musi być wyraźną jasną kropką (kontrast ≥ 35).
+- Odrzucanie kandydatów:
+  - na butach graczy (neonowe buty wyglądają jak piłka),
+  - wewnątrz sylwetek (słabe kandydaty),
+  - poza „kolumną nad kortem” (odbicia w bocznych szybach),
+  - w „gorących punktach” (miejsca migoczące w wielu klatkach).
+- Śledzenie typu „ziarno i przedłużanie”: zaczyna od trójek punktów o spójnym ruchu i przedłuża je zgodnie z przewidywaną prędkością.
+- Gotowy YOLO (klasa „sports ball”) nie nadaje się: wykrywa głównie piłki leżące na korcie.
+
+**Co zadziałało w liczeniu uderzeń:**
+
+- Uderzenie to zmiana kierunku lotu przy graczu albo koniec lub początek fragmentu toru w zasięgu gracza. Piłka zwykle znika w momencie kontaktu.
+- Zwroty wyjaśnione samą grawitacją (szczyt łuku, przyspieszanie przy spadaniu) nie są uderzeniami.
+- **Najważniejszy wniosek:** w 2D zasięg dużego bliskiego gracza przykrywa całą daleką połowę. Pomaga dopiero reguła padla: w wymianie drużyny uderzają na zmianę, więc drużyna, która uderzyła ostatnia, nie może uderzyć teraz.
+- Między partnerami decyduje nadgarstek (YOLO11-pose) najbliższy piłce. Model pozy nie widzi dalekich graczy, więc ich ramki pochodzą ze zwykłego detektora.
+
+**Wyniki (fragment 30–150 s, CPU, ok. 12 minut liczenia):**
+
+| Co | Wynik |
+|---|---|
+| Piłka: klatki z pozycją | 941 wykrytych + 343 interpolowanych z 3596 (reszta to w dużej mierze przerwy między punktami) |
+| Piłka: losowa kontrola 64 pozycji | ok. 90% dokładnie na piłce, także blada piłka na tle ściany |
+| Uderzenia: wykryte | 60 (A1 13, A2 16, B1 14, B2 17) |
+| Dwie wymiany oznaczone ręcznie (18 uderzeń; posłużyły też do strojenia) | 15/18 wykrytych z właściwym graczem, 0 fałszywych alarmów |
+| Dwie niezależne losowe próbki wykrytych uderzeń (29) | 19 poprawnych, 6 błędnych, 4 niejednoznaczne na obrazie |
+
+Typowy błąd: uderzenie dalekiego gracza zostaje przypisane bliskiemu, gdy poprzednie uderzenie w wymianie zostało pominięte. Wtedy reguła naprzemienności wyklucza właściwą drużynę. Wariant „miękki” (kara zamiast wykluczenia) był gorszy: 13/18 na wymianach oznaczonych ręcznie.
+
+Tożsamość graczy w skrócie meczu oznacza pozycję: A to para bliżej kamery, B para dalej, a 1 i 2 rozróżnia partnerów (śledzenie po pozycji i kolorze koszulki). Skrót łączy różne gemy, w których pary zmieniają strony, więc prawdziwe imiona wymagają ręcznego oznaczenia na starcie każdego fragmentu (etap 2 planu).
+
+**Co z tego wynika dla dalszych etapów:**
+
+- Własny detektor piłki (M3) jest nadal potrzebny. Klasyczne metody gubią piłkę przy dalekich graczach, a stamtąd biorą się pominięte uderzenia.
+- Model trajektorii powinien znać fizykę (parabole, odbicia), zamiast tylko łączyć punkty.
+- Kamera wyżej i 60 fps rozwiążą większość problemów z dalekimi graczami (zob. „Nagrywanie: zalecenia”).
+
 ## Kamienie milowe
 
 | # | Zakres | Gotowe, gdy |
 |---|---|---|
 | M0 ✅ | Szkielet: `pyproject`, ruff, pytest, CLI, `padel info` | `padel info` wypisuje fps i rozdzielczość Twojego pliku |
+| — ✅ | Prototyp `padel demo` (etapy 2–4 naraz, metody klasyczne) | Wyniki powyżej; wnioski wchodzą do M2–M4 |
 | M1 | Kalibracja kortu i homografia | Linie kortu z modelu pokrywają się z obrazem |
 | M2 | Gracze: detekcja, tracking, filtr kortu, ręczne ID, odzyskiwanie ID | Wideo z ramkami i imionami bez zamiany tożsamości na 10-minutowym fragmencie |
 | M3 | Piłka: punkt odniesienia → narzędzie do oznaczania → własny model → trajektoria | Recall piłki ≥ 85% na zestawie ewaluacyjnym |

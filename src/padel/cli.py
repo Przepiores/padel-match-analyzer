@@ -36,3 +36,23 @@ def info(video: Path) -> None:
             f"Uwaga: klatkaż poniżej {MIN_RECOMMENDED_FPS} fps, szybka piłka będzie rozmyta.",
             err=True,
         )
+
+
+@app.command()
+def demo(
+    video: Path,
+    calibration: Path = typer.Option(..., "--calib", help="Plik JSON z punktami kortu."),
+    out: Path = typer.Option(Path("data/demo"), "--out", "-o"),
+    start: float = typer.Option(0.0, help="Początek fragmentu [s]."),
+    duration: float = typer.Option(120.0, help="Długość fragmentu [s]."),
+    reuse: bool = typer.Option(False, help="Użyj zapisanych detekcji (detections.pkl)."),
+    video_out: bool = typer.Option(True, "--video/--no-video", help="Renderuj annotated.mp4."),
+) -> None:
+    """Prototyp: śledzenie piłki i uderzenia per gracz na fragmencie nagrania."""
+    from padel.demo import DemoConfig, run_demo
+
+    cfg = DemoConfig(start_s=start, duration_s=duration, reuse=reuse, video=video_out)
+    stats = run_demo(video, out, calibration, cfg)
+    typer.echo(f"Wyniki w {out}/")
+    for name, n in stats["hits_per_player"].items():
+        typer.echo(f"  {name:<12} {n:3d} uderzeń")

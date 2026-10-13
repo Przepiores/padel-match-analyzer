@@ -1,0 +1,16 @@
+# Losowa próbka wykrytych uderzeń, oceniona ręcznie (kto naprawdę uderzył).
+# Służy do oceny przypisania gracza: dla każdej klatki wykrycie powinno
+# wskazać podanego gracza. Uderzenia niejednoznaczne na obrazie pominięto.
+check,978,B2 (prawy)
+check,1895,B2 (prawy)
+check,1983,B2 (prawy)
+check,2378,B2 (prawy)
+check,2393,B1 (lewy)
+check,2816,B2 (prawy)
+check,3024,B1 (lewy)
+check,3075,B2 (prawy)
+check,3858,B1 (lewy)
+check,3995,B2 (prawy)
+check,4024,B2 (prawy)
+check,4121,B2 (prawy)
+check,4282,B1 (lewy)

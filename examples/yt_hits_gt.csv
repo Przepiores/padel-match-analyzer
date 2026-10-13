@@ -1,0 +1,23 @@
+# Uderzenia oznaczone ręcznie dla data/yt_clip.mp4 (klatka ~ moment kontaktu, ±0.3 s).
+# Nazwy jak w `padel demo`: A = para bliżej kamery, B = dalej; 1 = lewy, 2 = prawy.
+# window: zakresy klatek, w których prawda jest kompletna (poza nimi wykrycia się nie liczą).
+window,1170,1362
+window,3117,3430
+hit,1182,B1 (lewy)
+hit,1204,A1 (lewy)
+hit,1234,B1 (lewy)
+hit,1260,A2 (prawy)
+hit,1287,B1 (lewy)
+hit,1308,A1 (lewy)
+hit,1338,B2 (prawy)
+hit,1355,A2 (prawy)
+hit,3138,B1 (lewy)
+hit,3157,A2 (prawy)
+hit,3195,B1 (lewy)
+hit,3219,A2 (prawy)
+hit,3248,B2 (prawy)
+hit,3305,A2 (prawy)
+hit,3340,B2 (prawy)
+hit,3370,A1 (lewy)
+hit,3390,B1 (lewy)
+hit,3416,A1 (lewy)

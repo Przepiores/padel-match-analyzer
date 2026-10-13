@@ -7,7 +7,14 @@ requires-python = ">=3.11"
 dependencies = [
     "numpy>=1.26",
     "opencv-python>=4.9",
+    "scipy>=1.11",
     "typer>=0.12",
+]
+
+[project.optional-dependencies]
+vision = [
+    "ultralytics>=8.3",
+    "imageio-ffmpeg>=0.5",
 ]
 
 [project.scripts]
@@ -35,3 +42,14 @@ select = ["E", "F", "W", "I", "B", "UP", "SIM"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff.lint.flake8-bugbear]
+# Frozen config dataclasses and typer options are safe as argument defaults.
+extend-immutable-calls = [
+    "typer.Option",
+    "typer.Argument",
+    "padel.ball.candidates.CandidateConfig",
+    "padel.ball.candidates.BackgroundConfig",
+    "padel.ball.trajectory.TrajectoryConfig",
+    "padel.events.hits.HitConfig",
+]
