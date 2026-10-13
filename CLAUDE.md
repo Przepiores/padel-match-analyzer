@@ -22,7 +22,7 @@ Tests build tiny synthetic videos and trajectories; never commit real match foot
 
 `padel demo` caches the slow detection pass in `<out>/detections.pkl`; `--reuse --no-video` re-runs players, trajectory and hits from it in about a second, so iterate on `ball/trajectory.py` / `events/hits.py` that way. Changes to `ball/candidates.py` or `detect_people` need a full run (~12 min for 2 min of 360p video on CPU).
 
-Evaluation tools (the demo clip itself is not in git; it was a YouTube highlights video the user uploaded to `data/yt_clip.mp4`, with points in `examples/yt_calibration.json`):
+Evaluation tools (the demo clip itself is not in git: https://www.youtube.com/watch?v=Oq2YPJNNEDk, which the user downloaded and uploaded to `data/yt_clip.mp4` because YouTube is blocked in the cloud environment; court points are in `examples/yt_calibration.json`):
 - `scripts/eval_hits.py <out>/events.csv examples/yt_hits_gt.csv`: hits against two hand-labelled rallies. These rallies were also used for tuning, so treat the score as optimistic; `examples/yt_hits_sample.csv` (`check` rows) is a hand-judged random sample of detections.
 - `scripts/verify_ball.py`, `scripts/verify_missing.py` and `scripts/verify_hits.py` build contact sheets for checking by eye: ball precision, ball recall and hit attribution. Use them after any change: aggregate counts alone hid most regressions while tuning.
 

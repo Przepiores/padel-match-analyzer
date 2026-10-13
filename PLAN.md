@@ -225,7 +225,7 @@ Cele są wstępne i skorygujemy je po pierwszych pomiarach.
 
 ## Prototyp `padel demo`: wnioski
 
-Przed budową właściwych etapów sprawdziliśmy całe podejście na fragmencie 2 minut z YouTube (640×360, 30 fps, kamera nisko za kortem, bliska linia końcowa poza kadrem). To jest gorsza jakość niż docelowa (1080p, 60 fps).
+Przed budową właściwych etapów sprawdziliśmy całe podejście na fragmencie 2 minut (30–150 s) filmu https://www.youtube.com/watch?v=Oq2YPJNNEDk („Intermediate Level 3.5 | Padel Match Highlights | The Padel Guy”). Plik pobrał właściciel projektu, bo YouTube jest zablokowany w środowisku chmurowym: 640×360, 30 fps, kamera nisko za kortem, bliska linia końcowa poza kadrem. To jest gorsza jakość niż docelowa (1080p, 60 fps).
 
 **Co zadziałało w śledzeniu piłki:**
 
