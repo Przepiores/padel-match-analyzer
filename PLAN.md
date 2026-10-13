@@ -256,11 +256,13 @@ Przed budową właściwych etapów sprawdziliśmy całe podejście na fragmencie
 |---|---|
 | Piłka: klatki z pozycją | 941 wykrytych + 343 interpolowanych z 3596 (reszta to w dużej mierze przerwy między punktami) |
 | Piłka: losowa kontrola 64 pozycji | ok. 90% dokładnie na piłce, także blada piłka na tle ściany |
-| Uderzenia: wykryte | 60 (A1 13, A2 16, B1 14, B2 17) |
+| Uderzenia: wykryte | 56 (A1 13, A2 13, B1 13, B2 17) |
 | Dwie wymiany oznaczone ręcznie (18 uderzeń; posłużyły też do strojenia) | 15/18 wykrytych z właściwym graczem, 0 fałszywych alarmów |
-| Dwie niezależne losowe próbki wykrytych uderzeń (29) | 19 poprawnych, 6 błędnych, 4 niejednoznaczne na obrazie |
+| Dwie losowe próbki wykrytych uderzeń (24 jednoznaczne, `examples/yt_hits_sample.csv`) | 20/24 z właściwym graczem (83%) |
 
-Typowy błąd: uderzenie dalekiego gracza zostaje przypisane bliskiemu, gdy poprzednie uderzenie w wymianie zostało pominięte. Wtedy reguła naprzemienności wyklucza właściwą drużynę. Wariant „miękki” (kara zamiast wykluczenia) był gorszy: 13/18 na wymianach oznaczonych ręcznie.
+Losowe próbki posłużyły też do oceny ostatniej poprawki, czyli wyjątku od naprzemienności przy pominiętym uderzeniu (wcześniej 19/24). Wynik dla zupełnie nowych nagrań będzie więc pewnie trochę niższy. Ręczne oceny też bywają sprzeczne z regułami gry: dwa „uderzenia” tej samej drużyny w odstępie pół sekundy.
+
+Typowy błąd: uderzenie dalekiego gracza zostaje przypisane bliskiemu, gdy nakładają się w obrazie, a w wymianie brakuje wykrytego wcześniejszego uderzenia. Wariant „miękki” (kara zamiast wykluczenia drużyny) był gorszy: 13/18 na wymianach oznaczonych ręcznie.
 
 Tożsamość graczy w skrócie meczu oznacza pozycję: A to para bliżej kamery, B para dalej, a 1 i 2 rozróżnia partnerów (śledzenie po pozycji i kolorze koszulki). Skrót łączy różne gemy, w których pary zmieniają strony, więc prawdziwe imiona wymagają ręcznego oznaczenia na starcie każdego fragmentu (etap 2 planu).
 

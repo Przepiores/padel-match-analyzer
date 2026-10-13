@@ -28,6 +28,10 @@ class HitConfig:
     reach_top: float = 0.35
     rally_gap_s: float = 2.5  # no hit for this long: a new rally starts
     wrist_reach: float = 0.35  # ball this close to a wrist (in player heights)
+    # Overriding the alternation (a hit was probably missed): the ball is this
+    # close to a far player's body, and the near choice has no wrist this close.
+    missed_hit_far_dist: float = 0.35
+    missed_hit_wrist: float = 0.5
     same_team_window_s: float = 1.2
     max_boundary_gap: int = 45  # frames between trajectory pieces still joined
     min_boundary_angle_deg: float = 50.0
@@ -204,31 +208,61 @@ def assign_player(
     """Player who hit a ball at image point (x, y), or None for a bounce.
 
     Players of `forbid_team` (the team that hit last in this rally) are
-    excluded. A ball right at a player's wrist is theirs. Otherwise, since in
+    excluded, unless the evidence says a hit was missed in between (see
+    below). A ball right at a player's wrist is theirs. Otherwise, since in
     2D a big near player's reach box also covers the far court, a far player
     in reach wins over near ones. Among the rest, the closest wrist wins
     (partners at the net often both reach for it); without wrists, the
     closest reach box.
     """
-    in_reach = [
-        (slot, p)
-        for slot, p in people.items()
-        if reach_distance(x, y, p.bbox, cfg) <= 0.15
-        and (forbid_team is None or teams is None or teams[slot] != forbid_team)
+    in_reach = [(s, p) for s, p in people.items() if reach_distance(x, y, p.bbox, cfg) <= 0.15]
+    allowed = [
+        (s, p)
+        for s, p in in_reach
+        if forbid_team is None or teams is None or teams[s] != forbid_team
     ]
+    best = _best_player(x, y, allowed, cfg)
+    if best is None or forbid_team is None:
+        return best
+
+    # A missed hit breaks the alternation. If the ball sits right next to a
+    # far player of the "forbidden" team while the allowed choice is a near
+    # player who only reaches it with the edge of a big box (no wrist close),
+    # trust the image over the alternation.
+    b = people[best]
+    b_h = b.bbox[3] - b.bbox[1]
+    b_d = body_distance(x, y, b.bbox)
+    if _wrist_distance(x, y, b) <= cfg.missed_hit_wrist:
+        return best
+    for slot, p in in_reach:
+        h = p.bbox[3] - p.bbox[1]
+        d = body_distance(x, y, p.bbox)
+        if (
+            teams is not None
+            and teams[slot] == forbid_team
+            and b_h > 1.6 * h
+            and d <= cfg.missed_hit_far_dist
+            and b_d > d
+        ):
+            return slot
+    return best
+
+
+def _best_player(
+    x: float, y: float, in_reach: list[tuple[int, Person]], cfg: HitConfig
+) -> int | None:
     if not in_reach:
         return None
     heights = {slot: p.bbox[3] - p.bbox[1] for slot, p in in_reach}
 
-    def wrist_score(slot: int, p: Person) -> float:
-        if not p.wrists:
-            return float("inf")
-        return min(float(np.hypot(x - wx, y - wy)) for wx, wy in p.wrists) / heights[slot]
-
     # A wrist right at the ball is the strongest evidence there is (pose is
     # found for near players only, e.g. an overhead whose racket overlaps a
     # far player in the image).
-    at_wrist = [(wrist_score(s, p), s) for s, p in in_reach if wrist_score(s, p) <= cfg.wrist_reach]
+    at_wrist = [
+        (_wrist_distance(x, y, p), s)
+        for s, p in in_reach
+        if _wrist_distance(x, y, p) <= cfg.wrist_reach
+    ]
     if at_wrist:
         return min(at_wrist)[1]
 
@@ -239,10 +273,26 @@ def assign_player(
 
     def score(item: tuple[int, Person]) -> float:
         slot, p = item
-        w = wrist_score(slot, p)
+        w = _wrist_distance(x, y, p)
         return w if w < float("inf") else 1.0 + reach_distance(x, y, p.bbox, cfg)
 
     return min(in_reach, key=score)[0]
+
+
+def _wrist_distance(x: float, y: float, p: Person) -> float:
+    """Distance from the ball to the closest wrist, in player heights."""
+    if not p.wrists:
+        return float("inf")
+    h = max(p.bbox[3] - p.bbox[1], 1.0)
+    return min(float(np.hypot(x - wx, y - wy)) for wx, wy in p.wrists) / h
+
+
+def body_distance(x: float, y: float, b: BBox) -> float:
+    """Distance from a point to a player's box (0 inside), in player heights."""
+    h = b[3] - b[1]
+    dx = max(b[0] - x, 0, x - b[2])
+    dy = max(b[1] - y, 0, y - b[3])
+    return float(np.hypot(dx, dy) / max(h, 1))
 
 
 def enforce_alternation(

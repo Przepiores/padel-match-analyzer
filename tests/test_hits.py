@@ -64,3 +64,20 @@ def test_wrist_at_ball_beats_far_player_rule():
     near = Person((200, 150, 300, 400), wrists=((268, 112),))
     far = Person((260, 100, 275, 140))
     assert assign_player(268, 110, {0: near, 2: far}, HitConfig()) == 0
+
+
+def test_missed_hit_lets_far_player_hit_again():
+    # Last hit was team B, but the ball is right at a far B player and the
+    # near A player only reaches it with the edge of a big box: a hit by A
+    # was missed, so B takes it.
+    near = Person((440, 172, 498, 360), wrists=((451, 262),))
+    far = Person((345, 143, 361, 189))
+    people = {1: near, 3: far}
+    assert assign_player(337, 161, people, HitConfig(), TEAMS, forbid_team="B") == 3
+
+
+def test_alternation_holds_when_near_player_is_close():
+    near = Person((356, 179, 429, 270), wrists=((424, 201),))
+    far = Person((356, 144, 379, 189))
+    people = {1: near, 3: far}
+    assert assign_player(385, 177, people, HitConfig(), TEAMS, forbid_team="B") == 1
